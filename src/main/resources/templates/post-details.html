@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${post.title}"></title>
+    <style>
+        .post-container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .post-container h1 {
+            text-align: center;
+            color: #333;
+        }
+        .post-meta {
+            font-size: 14px;
+            color: gray;
+            text-align: center;
+        }
+        .post-content {
+            margin-top: 20px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .tags {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .tags span {
+            display: inline-block;
+            background-color: #f4f4f4;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .back-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: center;
+            background-color: black;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <h1 th:text="${post.title}"></h1>
+        <p class="post-meta">
+            <span th:text="'By ' + ${post.author}"></span> |
+            <span th:text="'Published on ' + ${#temporals.format(post.publishedAt, 'dd MMM yyyy HH:mm')}"></span>
+        </p>
+        <div class="post-content" th:text="${post.content}"></div>
+
+        <div class="tags">
+            <span th:each="tag : ${post.tags}" th:text="${tag.name}"></span>
+        </div>
+
+        <a href="/" class="back-button">Back to Home</a>
+    </div>
+</body>
+</html>

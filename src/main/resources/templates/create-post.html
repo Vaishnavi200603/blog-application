@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Post</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        label {
+            font-weight: bold;
+            text-align: left;
+        }
+        input[type="text"], textarea {
+            width: 95%;
+            padding: 10px;
+            margin-left: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.2s ease-in-out;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: black;
+            outline: none;
+        }
+        button {
+            background-color: #000;  /* ✅ Black background */
+            color: white;
+            padding: 8px 15px;  /* ✅ Smaller size */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;  /* ✅ Smaller font */
+            width: 150px;  /* ✅ Smaller width */
+            margin: 10px auto 0;  /* ✅ Center the button */
+            display: block;  /* ✅ Ensures centering */
+            transition: background 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <h1>New/Edit Post</h1>
+    <form th:action="@{/newpost}" th:object="${post}" method="POST">
+        <label><input type="text" placeholder="Enter Title" th:field="*{title}" required/></label>
+        <label><input type="text" placeholder="Enter Tags" th:field="*{tagNames}" required/></label>
+        <label><textarea rows="25" placeholder="Write your content here..." th:field="*{content}" required></textarea></label>
+        <button type="submit">Publish</button>
+    </form>
+
+
+</body>
+</html>

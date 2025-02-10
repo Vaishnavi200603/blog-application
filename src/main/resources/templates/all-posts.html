@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .post-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Responsive Grid */
+            gap: 25px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+        .post-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+        .post-card h2 {
+            margin: 0;
+        }
+        .post-card h2 a {
+            text-decoration: none;
+            color: black;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .tags {
+            margin-top: 10px;
+        }
+        .tag {
+            background-color: black;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>My Blog Application</h1>
+
+<!--    <div class="post-container">-->
+<!--        <a th:each="post : ${posts}" th:href="@{'/post/' + ${post.id}}" class="post-card-link">-->
+<!--            <div class="post-card">-->
+<!--                <h2 th:text="${post.title}"></h2>-->
+<!--                <p th:text="${post.author}"></p>-->
+<!--                <p th:text="${#temporals.format(post.publishedAt, 'dd MMM yyyy HH:mm')}"></p>-->
+<!--                <p th:text="${post.excerpt}"></p>-->
+<!--                <div th:each="tag : ${post.tags}">-->
+<!--                    <span th:text="${tag.name}"></span>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </a>-->
+<!--    </div>-->
+
+    <div class="post-container">
+        <div th:each="post : ${posts}" class="post-card">
+            <h2><a th:href="@{'/post/' + ${post.id}}" th:text="${post.title}"></a></h2>
+            <p th:text="${post.author}"></p>
+            <p th:text="${#temporals.format(post.publishedAt, 'dd MMM yyyy HH:mm')}"></p>
+            <p th:text="${post.excerpt}"></p>
+            <div class="tags">
+                <span th:each="tag : ${post.tags}" class="tag" th:text="${tag.name}"></span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

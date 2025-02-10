@@ -1,20 +1,14 @@
 package com.mountblue.blog_application.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "tags")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Tags {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +24,7 @@ public class Tags {
     private LocalDateTime updatedAt;
 
     @ManyToMany(mappedBy = "tags")
-    private Set<Posts> posts;
+    private Set<Posts> posts = new HashSet<>();
 
     @PrePersist
     public void onCreatedAt(){
@@ -41,5 +35,37 @@ public class Tags {
     @PreUpdate
     public void onUpdatedAt(){
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Set<Posts> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(Set<Posts> posts) {
+        this.posts = posts;
     }
 }
