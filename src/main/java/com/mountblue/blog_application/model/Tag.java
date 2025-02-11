@@ -1,44 +1,38 @@
 package com.mountblue.blog_application.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "comments")
-public class Comments {
+@Table(name = "tags")
+public class Tag {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String comment;
-
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    private Posts postId;
-
-    @Column(nullable = false, updatable = false, name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false, name = "updated_at")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @ManyToMany(mappedBy = "tags")
+    private Set<Post> posts = new HashSet<>();
+
     @PrePersist
-    public void doCreatedAt(){
+    public void onCreatedAt(){
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
     }
 
     @PreUpdate
-    public void doUpdatedAt(){
+    public void onUpdatedAt(){
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -58,30 +52,6 @@ public class Comments {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public Posts getPostId() {
-        return postId;
-    }
-
-    public void setPostId(Posts postId) {
-        this.postId = postId;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -96,5 +66,13 @@ public class Comments {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Set<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(Set<Post> posts) {
+        this.posts = posts;
     }
 }

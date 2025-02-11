@@ -1,10 +1,11 @@
 package com.mountblue.blog_application.service;
 
-import com.mountblue.blog_application.model.Posts;
-import com.mountblue.blog_application.model.Tags;
+import com.mountblue.blog_application.model.Post;
+import com.mountblue.blog_application.model.Tag;
 import com.mountblue.blog_application.repository.PostRepository;
 import com.mountblue.blog_application.repository.TagRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -20,15 +21,17 @@ public class PostService {
         this.tagRepository = tagRepository;
     }
 
-    public void createAndSavePost(Posts post) {
+    public void createAndSavePost(Post post) {
         String excerpt = generateExcerpt(post.getContent());
         post.setExcerpt(excerpt);
 
-        post.setAuthor("Namritha Thapar");
+//        post.setAuthor("Namritha Thapar");
         post.setPublishedAt(LocalDateTime.now());
         post.setPublished(true);
+        post.setTagNames(post.getTagNames());
+        System.out.println("While Setting first : " + post.getTagNames());
 
-        Set<Tags> tagSet = processTags(post.getTagNames());
+        Set<Tag> tagSet = processTags(post.getTagNames());
         post.setTags(tagSet);
 
         postRepository.save(post);
@@ -46,15 +49,15 @@ public class PostService {
         }
     }
 
-    private Set<Tags> processTags(String tagNames) {
-        Set<Tags> tagSet = new HashSet<>();
+    private Set<Tag> processTags(String tagNames) {
+        Set<Tag> tagSet = new HashSet<>();
         if (tagNames != null && !tagNames.trim().isEmpty()) {
             String[] tagArray = tagNames.split(",");
             for (String tagName : tagArray) {
                 tagName = tagName.trim();
-                Tags tag = tagRepository.findByName(tagName);
+                Tag tag = tagRepository.findByName(tagName);
                 if (tag == null) {
-                    tag = new Tags();
+                    tag = new Tag();
                     tag.setName(tagName);
                     tag = tagRepository.save(tag);
                 }
@@ -64,11 +67,56 @@ public class PostService {
         return tagSet;
     }
 
-    public List<Posts> getAllPublishedPosts(){
+    public List<Post> getAllPublishedPosts(){
         return postRepository.findByIsPublishedTrueOrderByPublishedAtDesc();
     }
 
-    public Posts getPostById(Long id){
-        return postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
+    public Optional<Post> getPostById(Long id){
+        return postRepository.findById(id);
     }
+
+    public void updatePost(Long id, Post updatedPost){
+        Optional<Post> post = postRepository.findById(id);
+        System.out.println("Updated Posts : " + updatedPost.getTagNames());
+
+        Post existingPost = post.get();
+
+        existingPost.setTitle(updatedPost.getTitle());
+        existingPost.setPublishedAt(LocalDateTime.now());
+        Set<Tag> tagsSet = processTags(updatedPost.getTagNames());
+        existingPost.setTags(tagsSet);
+//        existingPost.setTags(updatedPost.getTags());
+        existingPost.setContent(updatedPost.getContent());
+        String excerpt = generateExcerpt(updatedPost.getContent());
+        existingPost.setExcerpt(excerpt);
+        postRepository.save(existingPost);
+
+    }
+
+    public void deletePost(Long id) {
+        postRepository.deleteById(id);
+    }
+
+    public String setTagsNameFromTags(Long id) {
+        Optional<Post> post = postRepository.findById(id);
+
+        if (post.isPresent()) {
+            Set<Tag> tags = post.get().getTags();
+
+            StringBuilder tagNames = new StringBuilder();
+
+            for (Tag tag : tags) {
+                if (!tagNames.isEmpty()) {
+                    tagNames.append(", ");
+                }
+                tagNames.append(tag.getName());
+            }
+
+            System.out.println("Converted Tag Names: " + tagNames);
+            return tagNames.toString();
+        } else {
+            return "Post not found!";
+        }
+    }
+
 }

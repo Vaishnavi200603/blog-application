@@ -1,6 +1,6 @@
 package com.mountblue.blog_application.controller;
 
-import com.mountblue.blog_application.model.Posts;
+import com.mountblue.blog_application.model.Post;
 import com.mountblue.blog_application.service.PostService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,26 +21,20 @@ public class BlogPostController {
 
     @GetMapping("/create-post")
     public String showCreatePostForm(Model model){
-        model.addAttribute("post", new Posts());
+        model.addAttribute("post", new Post());
         return "create-post";
     }
 
     @PostMapping("/newpost")
-    public String createNewPost(@ModelAttribute Posts post) {
-        System.out.println("inside the createNewPost");
-
-        try {
-            postService.createAndSavePost(post);
-            return "all-posts";
-        } catch (Exception e) {
-            System.err.println("Error while creating new post: " + e.getMessage());
-            return "error-page";
-        }
+    public String createNewPost(@ModelAttribute Post post) {
+        System.out.println("1. inside the createNewPost");
+        postService.createAndSavePost(post);
+        return "redirect:/";
     }
 
     @GetMapping("/")
     public String getAllPublishedPosts(Model model){
-        List<Posts> allPosts = postService.getAllPublishedPosts();
+        List<Post> allPosts = postService.getAllPublishedPosts();
         model.addAttribute("posts", allPosts);
         return "all-posts";
     }

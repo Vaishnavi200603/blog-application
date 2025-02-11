@@ -1,16 +1,16 @@
 package com.mountblue.blog_application.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "posts")
-public class Posts {
+public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(nullable = false)
@@ -43,13 +43,16 @@ public class Posts {
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<Tags> tags = new HashSet<>();
+    private Set<Tag> tags = new HashSet<>();
 
-    @Transient // This field is NOT stored in the database
+    @Transient
     private String tagNames;
 
     @PrePersist
-    public void onCreateAt(){
+    public void setDefaultAuthorName(){
+        if(this.author == null || this.author.isBlank()){
+            this.author = "Namritha Thapar";
+        }
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
     }
@@ -131,19 +134,42 @@ public class Posts {
         this.updatedAt = updatedAt;
     }
 
-    public Set<Tags> getTags() {
+    public Set<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(Set<Tags> tags) {
+    public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
 
     public String getTagNames() {
+//
         return tagNames;
     }
 
     public void setTagNames(String tagNames) {
         this.tagNames = tagNames;
     }
+
+//    public String setTagsNameFromTags(Long id) {
+//        Optional<Post> post = postRepository.findById(id);
+//
+//        if (post.isPresent()) {
+//            Set<Tag> tags = post.get().getTags(); // Get all associated tags
+//
+//            StringBuilder tagNames = new StringBuilder();
+//
+//            for (Tag tag : tags) {
+//                if (!tagNames.isEmpty()) {
+//                    tagNames.append(", "); // Separate tag names with a comma
+//                }
+//                tagNames.append(tag.getName()); // Append tag name
+//            }
+//
+//            System.out.println("Converted Tag Names: " + tagNames);
+//            return tagNames.toString();
+//        } else {
+//            return "Post not found!";
+//        }
+//    }
 }

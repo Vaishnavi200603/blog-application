@@ -36,16 +36,20 @@
             border-radius: 5px;
             font-size: 14px;
         }
-        .back-button {
-            display: block;
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
             width: 150px;
-            margin: 20px auto;
             padding: 10px;
             text-align: center;
             background-color: black;
             color: white;
             text-decoration: none;
             border-radius: 5px;
+            margin: 5px;
         }
     </style>
 </head>
@@ -62,7 +66,15 @@
             <span th:each="tag : ${post.tags}" th:text="${tag.name}"></span>
         </div>
 
-        <a href="/" class="back-button">Back to Home</a>
+        <div class="button-container">
+            <a href="/" class="button">Back to Home</a>
+            <a th:href="@{/post/edit/{id}(id=${post.id})}" class="button">Update Blog</a>
+            <form th:action="@{/post/delete/{id}(id=${post.id})}" method="post" style="display:inline;">
+                <button type="submit" class="button delete-button">Delete Blog</button>
+            </form>
+        </div>
+
+
     </div>
 </body>
 </html>
