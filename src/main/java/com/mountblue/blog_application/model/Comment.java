@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")
+    @SequenceGenerator(name = "post_seq", sequenceName = "comment_sequence", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false, length = 100)

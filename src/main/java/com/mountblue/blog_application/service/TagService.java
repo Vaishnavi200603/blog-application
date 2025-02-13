@@ -12,13 +12,13 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    public Tag getOrCreateNewTag(String tagName){
-        Tag tag = tagRepository.findByName(tagName);
-        if(tag == null){
-            tag = new Tag();
-            tag.setName(tagName);
-            return tagRepository.save(tag);
-        }
-        return tag;
-    }
+//    public Tag getOrCreateNewTag(String tagName){
+//        Tag tag = tagRepository.findByName(tagName);
+//        if(tag == null){
+//            tag = new Tag();
+//            tag.setName(tagName);
+//            return tagRepository.save(tag);
+//        }
+//        return tag;
+//    }
 }

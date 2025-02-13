@@ -10,7 +10,8 @@ import java.util.Set;
 @Table(name = "tags")
 public class Tag {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")
+    @SequenceGenerator(name = "post_seq", sequenceName = "tag_sequence", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false, length = 100)

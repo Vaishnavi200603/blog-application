@@ -4,9 +4,14 @@ import com.mountblue.blog_application.model.Post;
 import com.mountblue.blog_application.model.Tag;
 import com.mountblue.blog_application.repository.PostRepository;
 import com.mountblue.blog_application.repository.TagRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -67,15 +72,15 @@ public class PostService {
         return tagSet;
     }
 
-    public List<Post> getAllPublishedPosts(){
+    public List<Post> getAllPublishedPosts() {
         return postRepository.findByIsPublishedTrueOrderByPublishedAtDesc();
     }
 
-    public Optional<Post> getPostById(Long id){
+    public Optional<Post> getPostById(Long id) {
         return postRepository.findById(id);
     }
 
-    public void updatePost(Long id, Post updatedPost){
+    public void updatePost(Long id, Post updatedPost) {
         Optional<Post> post = postRepository.findById(id);
         System.out.println("Updated Posts : " + updatedPost.getTagNames());
 
@@ -90,7 +95,6 @@ public class PostService {
         String excerpt = generateExcerpt(updatedPost.getContent());
         existingPost.setExcerpt(excerpt);
         postRepository.save(existingPost);
-
     }
 
     public void deletePost(Long id) {
@@ -119,4 +123,86 @@ public class PostService {
         }
     }
 
+    public Page<Post> getAllPage(Pageable pageable) {
+        return postRepository.findAll(pageable);
+    }
+
+    public Page<Post> getFilteredPost(String author, LocalDateTime startDay, LocalDateTime endDay,
+                                      List<String> tagNames, String search, Pageable pageable) {
+
+        //1. for searching
+        if (search != null && !search.isEmpty()) {
+            System.out.println("SEARCH : " + search);
+            if(!search.equals(",")) return postRepository.searchPosts(search, pageable);
+        }
+
+        //2. if only date was given
+        if((author == null || author.isEmpty()) && (tagNames == null || tagNames.isEmpty())){
+            return postRepository.findByPublishedAtBetween(startDay, endDay, pageable);
+        }
+
+        //3. only author was given
+        else if(startDay == null && (tagNames == null || tagNames.isEmpty())){
+            return postRepository.findByAuthorIgnoreCase(author, pageable);
+        }
+
+        //4. if only author and tags were given
+        else if(tagNames == null || tagNames.isEmpty()){
+            return postRepository.findByAuthorIgnoreCaseAndPublishedAtBetween(author, startDay, endDay, pageable);
+        }
+
+        //5. if only tags were given
+        else if((author == null || author.isEmpty()) && startDay == null){
+            return postRepository.findByTags_NameIn(tagNames, pageable);
+        }
+
+        //6. if only author and tags were given
+        else if (startDay == null) {
+            return postRepository.findByAuthorIgnoreCaseAndTags_NameIn(author, tagNames, pageable);
+        }
+
+        //7. if only date and tags were given
+        else if (author == null || author.isEmpty()) {
+            return postRepository.findByPublishedAtBetweenAndTags_NameIn(startDay, endDay, tagNames, pageable);
+        }
+
+        //8. if everything were given
+        else {
+            return postRepository.findByAuthorIgnoreCaseAndPublishedAtBetweenAndTags_NameIn(author, startDay, endDay, tagNames, pageable);
+        }
+
+
+
+        //        return postRepository.findFilteredPosts(author, startDay, endDay, tag, pageable);
+
+
+    }
+
+    public List<String> getAllAuthors() {
+        return postRepository.findDistinctAuthors();
+
+    }
+
+    public List<LocalDate> getAllPublishedDates() {
+        List<java.sql.Date> dates = postRepository.findDistinctPublishedDates();
+
+        List<LocalDate> localDates = new ArrayList<>();
+        for (java.sql.Date sqlDate : dates) {
+            localDates.add(sqlDate.toLocalDate());  // Convert java.sql.Date → LocalDate
+        }
+
+        return localDates;
+    }
+
+    public List<String> getAllTagNames(){
+        List<Tag> allTags = tagRepository.findAll();
+        List<String> tagNames = new ArrayList<>();
+
+        for(Tag tag : allTags){
+            tagNames.add(tag.getName());
+        }
+        return tagNames;
+    }
 }
+
+

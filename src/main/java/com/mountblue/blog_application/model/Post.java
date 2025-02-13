@@ -10,7 +10,8 @@ import java.util.*;
 @Table(name = "posts")
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_seq")
+    @SequenceGenerator(name = "post_seq", sequenceName = "post_sequence", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false)
@@ -151,25 +152,4 @@ public class Post {
         this.tagNames = tagNames;
     }
 
-//    public String setTagsNameFromTags(Long id) {
-//        Optional<Post> post = postRepository.findById(id);
-//
-//        if (post.isPresent()) {
-//            Set<Tag> tags = post.get().getTags(); // Get all associated tags
-//
-//            StringBuilder tagNames = new StringBuilder();
-//
-//            for (Tag tag : tags) {
-//                if (!tagNames.isEmpty()) {
-//                    tagNames.append(", "); // Separate tag names with a comma
-//                }
-//                tagNames.append(tag.getName()); // Append tag name
-//            }
-//
-//            System.out.println("Converted Tag Names: " + tagNames);
-//            return tagNames.toString();
-//        } else {
-//            return "Post not found!";
-//        }
-//    }
 }
