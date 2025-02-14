@@ -51,30 +51,250 @@
             border-radius: 5px;
             margin: 5px;
         }
+                .comment-section {
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+        .comment-box {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .comment-box strong {
+            color: #333;
+            font-size: 16px;
+        }
+        .comment-box p {
+            margin: 8px 0 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .comment-form {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .comment-form label {
+            display: block;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .comment-form input, .comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .comment-form button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .comment-actions button {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: black;
+            color: white;
+        }
+
+        .comment-actions form {
+            display: inline;
+        }
+
+        .comment-box, .nested-comment {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+        }
+
+
     </style>
 </head>
 <body>
-    <div class="post-container">
-        <h1 th:text="${post.title}"></h1>
-        <p class="post-meta">
-            <span th:text="'By ' + ${post.author}"></span> |
-            <span th:text="'Published on ' + ${#temporals.format(post.publishedAt, 'dd MMM yyyy HH:mm')}"></span>
-        </p>
-        <div class="post-content" th:text="${post.content}"></div>
+<div class="post-container">
+    <h1 th:text="${post.title}"></h1>
+    <p class="post-meta">
+        <span th:text="'By ' + ${post.author}"></span> |
+        <span th:text="'Published on ' + ${#temporals.format(post.publishedAt, 'dd MMM yyyy HH:mm')}"></span>
+    </p>
+    <div class="post-content" th:text="${post.content}"></div>
 
-        <div class="tags">
-            <span th:each="tag : ${post.tags}" th:text="${tag.name}"></span>
-        </div>
-
-        <div class="button-container">
-            <a href="/" class="button">Back to Home</a>
-            <a th:href="@{/post/edit/{id}(id=${post.id})}" class="button">Update Blog</a>
-            <form th:action="@{/post/delete/{id}(id=${post.id})}" method="post" style="display:inline;">
-                <button type="submit" class="button delete-button">Delete Blog</button>
-            </form>
-        </div>
-
-
+    <div class="tags">
+        <span th:each="tag : ${post.tags}" th:text="${tag.name}"></span>
     </div>
+
+    <div class="button-container">
+        <a href="/" class="button">Back to Home</a>
+        <a th:href="@{/post/edit/{id}(id=${post.id})}" class="button">Update Blog</a>
+        <form th:action="@{/post/delete/{id}(id=${post.id})}" method="post" style="display:inline;">
+            <button type="submit" class="button delete-button">Delete Blog</button>
+        </form>
+    </div>
+
+
+    <div class="comment-section">
+        <h2>Comments</h2>
+
+        <!-- Add a New Comment Form -->
+        <h3>Add a Comment</h3>
+        <form th:action="@{/comments/add}" method="post" class="comment-form">
+            <input type="hidden" name="postId" th:value="${post.id}">
+
+            <label>Name:</label>
+            <input type="text" name="name" required>
+
+            <label>Email:</label>
+            <input type="email" name="email" required>
+
+            <label>Comment:</label>
+            <textarea name="comment" required></textarea>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <!-- Display Comments (Including Replies) -->
+        <div th:each="comment : ${comments}" class="comment-box">
+            <strong th:text="${comment.name}"></strong>
+            <p th:text="${comment.comment}"></p>
+
+            <!-- Buttons for Edit, Reply, Delete -->
+            <div class="comment-actions">
+                <form th:action="@{/comments/delete/{id}(id=${comment.id})}" method="post">
+                    <input type="hidden" name="postId" th:value="${post.id}">
+                    <button type="submit">Delete</button>
+                </form>
+
+                <button type="button" th:attr="onclick='toggleEditForm(' + ${comment.id} + ')'"><b>Edit</b></button>
+                <button type="button" th:attr="onclick='toggleReplyForm(' + ${comment.id} + ')'"><b>Reply</b></button>
+            </div>
+
+            <!-- Edit Form (Initially Hidden) -->
+            <div th:id="'edit-form-' + ${comment.id}" style="display: none;">
+                <form th:action="@{/comments/update/{id}(id=${comment.id})}" method="post">
+                    <input type="hidden" name="postId" th:value="${post.id}">
+                    <input type="hidden" name="commentId" th:value="${comment.id}">
+
+                    <label>Edit Comment:</label>
+                    <textarea name="updatedComment" required th:text="${comment.comment}"></textarea>
+
+                    <button type="submit">Update</button>
+                </form>
+            </div>
+
+            <!-- Reply Form (Initially Hidden) -->
+            <div th:id="'reply-form-' + ${comment.id}" style="display: none;">
+                <form th:action="@{/comments/add}" method="post">
+                    <input type="hidden" name="postId" th:value="${post.id}">
+                    <input type="hidden" name="parentCommentId" th:value="${comment.id}">
+
+                    <label>Name:</label>
+                    <input type="text" name="name" required>
+
+                    <label>Email:</label>
+                    <input type="email" name="email" required>
+
+                    <label>Reply:</label>
+                    <textarea name="comment" required></textarea>
+
+                    <button type="submit">Reply</button>
+                </form>
+            </div>
+
+            <!-- Nested Comments (Replies) -->
+            <div th:if="${not #lists.isEmpty(comment.replies)}" class="nested-comments">
+                <div th:each="reply : ${comment.replies}" class="nested-comment">
+                    <strong th:text="${reply.name}"></strong>
+                    <p th:text="${reply.comment}"></p>
+                    <div class="comment-actions">
+                        <form th:action="@{/comments/delete/{id}(id=${reply.id})}" method="post">
+                            <input type="hidden" name="postId" th:value="${post.id}">
+                            <button type="submit">Delete</button>
+                        </form>
+
+                        <button type="button" th:attr="onclick='toggleEditForm(' + ${reply.id} + ')'"><b>Edit</b></button>
+<!--                        <button type="button" th:attr="onclick='toggleReplyForm(' + ${reply.id} + ')'"><b>Reply</b></button>-->
+                    </div>
+
+                    <!-- Edit Form for Replies -->
+                    <div th:id="'edit-form-' + ${reply.id}" style="display: none;">
+                        <form th:action="@{/comments/update/{id}(id=${reply.id})}" method="post">
+                            <input type="hidden" name="postId" th:value="${post.id}">
+                            <input type="hidden" name="commentId" th:value="${reply.id}">
+
+                            <label>Edit Reply:</label>
+                            <textarea name="updatedComment" required th:text="${reply.comment}"></textarea>
+
+                            <button type="submit">Update</button>
+                        </form>
+                    </div>
+
+                    <!-- Reply Form for Replies -->
+<!--                    <div th:id="'reply-form-' + ${reply.id}" style="display: none;">-->
+<!--                        <form th:action="@{/comments/add}" method="post">-->
+<!--                            <input type="hidden" name="postId" th:value="${post.id}">-->
+<!--                            <input type="hidden" name="parentCommentId" th:value="${reply.id}">-->
+
+<!--                            <label>Name:</label>-->
+<!--                            <input type="text" name="name" required>-->
+
+<!--                            <label>Email:</label>-->
+<!--                            <input type="email" name="email" required>-->
+
+<!--                            <label>Reply:</label>-->
+<!--                            <textarea name="comment" required></textarea>-->
+
+<!--                            <button type="submit">Reply</button>-->
+<!--                        </form>-->
+<!--                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEditForm(commentId) {
+            let form = document.getElementById("edit-form-" + commentId);
+            form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+        }
+
+        function toggleReplyForm(commentId) {
+            let form = document.getElementById("reply-form-" + commentId);
+            form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+        }
+    </script>
+
+
+
+
+
+
+
+</div>
 </body>
 </html>

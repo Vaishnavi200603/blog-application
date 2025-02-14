@@ -26,6 +26,9 @@ public class Post {
     @Column(nullable = false, length = 100)
     private String author;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
@@ -101,6 +104,14 @@ public class Post {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     public LocalDateTime getPublishedAt() {

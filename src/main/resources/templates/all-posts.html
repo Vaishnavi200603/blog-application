@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <title>Blog Posts</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        <style>
+        html, body {
+            height: 100%;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: Arial, sans-serif;
             background-color: #f8f9fa;
-            box-sizing: border-box;
             display: flex;
             flex-direction: column;
         }
@@ -19,16 +20,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
         }
-
-        /* Search Bar */
-        .search-bar {
-            flex: 1;
-        }
-        .search-bar input {
+        .search-bar input, .sort-container select {
             padding: 8px;
-            width: 60%;
             border-radius: 4px;
             border: 1px solid #ccc;
         }
@@ -41,66 +43,54 @@
             border-radius: 4px;
         }
 
-        /* Sort Dropdown */
-        .sort-container {
-            margin-left: 20px;
-        }
-        .sort-container select {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            cursor: pointer;
+        /* Layout */
+        .container {
+            display: flex;
+            margin-top: 60px;
         }
 
         /* Sidebar */
-        .container {
-            display: flex;
-        }
         .sidebar {
             width: 250px;
             background: white;
             padding: 20px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            height: calc(100vh - 60px);
             position: fixed;
-            left: 0;
             top: 60px;
+            left: 0;
             overflow-y: auto;
         }
-        .sidebar h3 {
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
+
         .filter-group {
             margin-bottom: 15px;
         }
-        .filter-group label {
-            display: block;
+        .filter-group h4 {
             margin-bottom: 5px;
+            font-size: 16px;
         }
         .filter-button {
+            width: 100%;
             background-color: black;
             color: white;
+            padding: 10px;
             border: none;
-            padding: 8px 12px;
             cursor: pointer;
             border-radius: 4px;
-            width: 100%;
             margin-top: 10px;
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
-            flex-grow: 1;
+            margin-left: 270px;
             padding: 20px;
+            flex-grow: 1;
         }
+
         .post-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 25px;
-            max-width: 1000px;
+            gap: 20px;
         }
         .post-card {
             background: white;
@@ -108,16 +98,7 @@
             border-radius: 8px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .post-card h2 a {
-            text-decoration: none;
-            color: black;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .tags {
-            margin-top: 10px;
-        }
-        .tag {
+        .tags .tag {
             background-color: black;
             color: white;
             padding: 4px 8px;
@@ -145,8 +126,6 @@
 
 <!-- Search and Sort -->
 <div class="search-sort-container">
-    <!-- Search Bar -->
-    <!-- Search Bar -->
     <div class="search-bar">
         <form th:action="@{/}" method="get">
             <input type="text" name="search" placeholder="Search posts..." th:value="${search}">
@@ -163,13 +142,11 @@
         </form>
     </div>
 
-
-    <!-- Sort Dropdown (Without JavaScript) -->
     <div class="sort-container">
         <form th:action="@{/}" method="get">
             <label for="sort">Sort by:</label>
             <select id="sort" name="sort" onchange="this.form.submit()">
-                <option value="desc" th:selected="${sort != null and sort == 'desc'}">Newest First</option>
+                <option value="desc" th:selected="${sort == null and sort == 'desc'}">Newest First</option>
                 <option value="asc" th:selected="${sort != null and sort == 'asc'}">Oldest First</option>
             </select>
 
@@ -177,9 +154,16 @@
             <!-- Preserve existing filters in hidden inputs -->
             <input type="hidden" name="page" th:value="${currentPage}">
             <input type="hidden" name="search" th:value="${search != null ? search : ''}">
-            <input type="hidden" name="author" th:value="${author != null ? author : ''}">
-            <input type="hidden" name="publishedAt" th:value="${publishedAt != null ? publishedAt : ''}">
-<!--            <input type="hidden" name="tagName" th:value="${tagName != null ? tagName : ''}">-->
+<!--            <input type="hidden" name="author" th:value="${author != null ? author : ''}">-->
+<!--            <input type="hidden" name="publishedAt" th:value="${publishedAt != null ? publishedAt : ''}">-->
+
+            <th:block th:each="a : ${author}">
+                <input type="hidden" name="author" th:value="${a}">
+            </th:block>
+
+            <th:block th:each="date : ${publishedAt}">
+                <input type="hidden" name="publishedAt" th:value="${date}">
+            </th:block>
 
             <th:block th:each="tag : ${tagName}">
                 <input type="hidden" name="tagName" th:value="${tag}">
@@ -202,8 +186,8 @@
                            th:checked="${author != null and #lists.contains(author, a)}">
                     <span th:text="${a}"></span>
                 </label>
+<!--                <p th:text="${author}">Selected Authors</p>-->
             </div>
-
 
             <!-- Published Date Filter -->
             <div class="filter-group">
@@ -213,6 +197,7 @@
                            th:checked="${publishedAt != null and #lists.contains(publishedAt, date)}">
                     <span th:text="${date}"></span>
                 </label>
+<!--                <p th:text="${publishedAt}">PublishedAt</p>-->
             </div>
 
             <!-- Tags Filter -->
@@ -251,7 +236,7 @@
         <div class="pagination">
             <!-- Previous Page -->
             <a th:if="${currentPage > 0}"
-               th:href="@{/(page=${currentPage - 1}, size=4, sort=${sort},
+               th:href="@{/(page=${currentPage - 1}, size=6, sort=${sort},
                    search=${search}, author=${author},
                    publishedAt=${publishedAt}, tagName=${tagName})}">
                 Previous
@@ -262,7 +247,7 @@
 
             <!-- Next Page -->
             <a th:if="${(currentPage + 1) < totalPages}"
-               th:href="@{/(page=${currentPage + 1}, size=4, sort=${sort},
+               th:href="@{/(page=${currentPage + 1}, size=6, sort=${sort},
                    search=${search}, author=${author},
                    publishedAt=${publishedAt}, tagName=${tagName})}">
                 Next

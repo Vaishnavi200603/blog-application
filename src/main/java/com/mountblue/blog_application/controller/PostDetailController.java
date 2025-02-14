@@ -1,20 +1,25 @@
 package com.mountblue.blog_application.controller;
 
+import com.mountblue.blog_application.model.Comment;
 import com.mountblue.blog_application.model.Post;
+import com.mountblue.blog_application.service.CommentService;
 import com.mountblue.blog_application.service.PostService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/post")
 public class PostDetailController {
     private final PostService postService;
+    private final CommentService commentService;
 
-    public PostDetailController(PostService postService) {
+    public PostDetailController(PostService postService, CommentService commentService) {
         this.postService = postService;
+        this.commentService = commentService;
     }
 
     @GetMapping("/{id}")
@@ -22,7 +27,11 @@ public class PostDetailController {
         System.out.println("2. inside getDetailsOfPost");
         Optional<Post> post = postService.getPostById(id);
         if(post.isPresent()){
+            List<Comment> comments = commentService.getCommentsByPost(id);
+
             model.addAttribute("post", post.get());
+            model.addAttribute("comments", comments); //for existing comments
+            model.addAttribute("newComment", new Comment());  //for adding new comments
             return "post-details";
         }
         else{

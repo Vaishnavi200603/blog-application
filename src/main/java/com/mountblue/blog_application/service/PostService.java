@@ -127,55 +127,70 @@ public class PostService {
         return postRepository.findAll(pageable);
     }
 
-    public Page<Post> getFilteredPost(String author, LocalDateTime startDay, LocalDateTime endDay,
+    public Page<Post> getFilteredPost(List<String> authors, List<LocalDate> publishedDates,
                                       List<String> tagNames, String search, Pageable pageable) {
+
+        // Convert LocalDate to LocalDateTime - because in hibernate there is LocalDateTime
+        List<LocalDateTime> publishedDateTimes = new ArrayList<>();
+        for (LocalDate date : publishedDates) {
+            publishedDateTimes.add(date.atStartOfDay());
+        }
 
         //1. for searching
         if (search != null && !search.isEmpty()) {
-            System.out.println("SEARCH : " + search);
-            if(!search.equals(",")) return postRepository.searchPosts(search, pageable);
+            Page<Post> posts = postRepository.searchPosts(search, pageable);
+            System.out.println("1." + posts);
+            return posts;
         }
 
         //2. if only date was given
-        if((author == null || author.isEmpty()) && (tagNames == null || tagNames.isEmpty())){
-            return postRepository.findByPublishedAtBetween(startDay, endDay, pageable);
+        if((authors == null || authors.isEmpty()) && (tagNames == null || tagNames.isEmpty())){
+            Page<Post> posts = postRepository.findByPublishedAtIn(publishedDateTimes, pageable);
+            System.out.println("2." + posts);
+            return posts;
         }
 
         //3. only author was given
-        else if(startDay == null && (tagNames == null || tagNames.isEmpty())){
-            return postRepository.findByAuthorIgnoreCase(author, pageable);
+        else if(publishedDateTimes.isEmpty() && (tagNames == null || tagNames.isEmpty())){
+            Page<Post> posts = postRepository.findByAuthorInIgnoreCase(authors, pageable);
+            System.out.println("3." + posts);
+            return posts;
         }
 
-        //4. if only author and tags were given
-        else if(tagNames == null || tagNames.isEmpty()){
-            return postRepository.findByAuthorIgnoreCaseAndPublishedAtBetween(author, startDay, endDay, pageable);
+        //4. if only author and publishedDate were given
+        else if (tagNames == null || tagNames.isEmpty()) {
+            Page<Post> posts = postRepository.findByAuthorInIgnoreCaseAndPublishedAtIn(authors, publishedDateTimes, pageable);
+            System.out.println("4." + posts);
+            return posts;
         }
 
         //5. if only tags were given
-        else if((author == null || author.isEmpty()) && startDay == null){
-            return postRepository.findByTags_NameIn(tagNames, pageable);
+        else if((authors == null || authors.isEmpty()) && publishedDateTimes.isEmpty()){
+            Page<Post> posts = postRepository.findByTags_NameIn(tagNames, pageable);
+            System.out.println("5." + posts);
+            return posts;
         }
 
         //6. if only author and tags were given
-        else if (startDay == null) {
-            return postRepository.findByAuthorIgnoreCaseAndTags_NameIn(author, tagNames, pageable);
+        else if (publishedDateTimes.isEmpty()) {
+            Page<Post> posts = postRepository.findByAuthorInIgnoreCaseAndTags_NameIn(authors, tagNames, pageable);
+            System.out.println("6." + posts);
+            return posts;
         }
 
         //7. if only date and tags were given
-        else if (author == null || author.isEmpty()) {
-            return postRepository.findByPublishedAtBetweenAndTags_NameIn(startDay, endDay, tagNames, pageable);
+        else if (authors == null || authors.isEmpty()) {
+            Page<Post> posts = postRepository.findByPublishedAtInAndTags_NameIn(publishedDateTimes, tagNames, pageable);
+            System.out.println("7." + posts);
+            return posts;
         }
 
         //8. if everything were given
         else {
-            return postRepository.findByAuthorIgnoreCaseAndPublishedAtBetweenAndTags_NameIn(author, startDay, endDay, tagNames, pageable);
+            Page<Post> posts = postRepository.findByAuthorInIgnoreCaseAndPublishedAtInAndTags_NameIn(authors, publishedDateTimes, tagNames, pageable);
+            System.out.println("8." + posts);
+            return posts;
         }
-
-
-
-        //        return postRepository.findFilteredPosts(author, startDay, endDay, tag, pageable);
-
-
     }
 
     public List<String> getAllAuthors() {
@@ -203,6 +218,9 @@ public class PostService {
         }
         return tagNames;
     }
+
+
+
 }
 
 
