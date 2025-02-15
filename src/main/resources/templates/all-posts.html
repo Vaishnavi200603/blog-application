@@ -134,8 +134,15 @@
             <!-- Preserve existing filters -->
             <input type="hidden" name="page" th:value="${currentPage}">
             <input type="hidden" name="sort" th:value="${sort}">
-            <input type="hidden" name="author" th:value="${author}">
-            <input type="hidden" name="publishedAt" th:value="${publishedAt}">
+
+            <th:block th:each="a : ${author}">
+                <input type="hidden" name="author" th:value="${a}">
+            </th:block>
+
+            <th:block th:each="date : ${publishedAt}">
+                <input type="hidden" name="publishedAt" th:value="${date}">
+            </th:block>
+
             <th:block th:each="tag : ${tagName}">
                 <input type="hidden" name="tagName" th:value="${tag}">
             </th:block>
@@ -154,8 +161,6 @@
             <!-- Preserve existing filters in hidden inputs -->
             <input type="hidden" name="page" th:value="${currentPage}">
             <input type="hidden" name="search" th:value="${search != null ? search : ''}">
-<!--            <input type="hidden" name="author" th:value="${author != null ? author : ''}">-->
-<!--            <input type="hidden" name="publishedAt" th:value="${publishedAt != null ? publishedAt : ''}">-->
 
             <th:block th:each="a : ${author}">
                 <input type="hidden" name="author" th:value="${a}">
@@ -178,6 +183,12 @@
     <div class="sidebar">
         <h3>Filters</h3>
         <form th:action="@{/}" method="get">
+
+            <!-- Preserve Sort and Search -->
+<!--            <input type="hidden" name="search" th:value="${search != null ? search : ''}">-->
+<!--            <input type="hidden" name="sort" th:value="${sort != null ? sort : 'desc'}">-->
+<!--            <input type="hidden" name="page" th:value="${currentPage}">-->
+
             <!-- Author Filter -->
             <div class="filter-group">
                 <h4>Authors</h4>
