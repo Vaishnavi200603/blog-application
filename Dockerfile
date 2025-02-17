@@ -1,26 +1,22 @@
-# Stage 1: Build the application using Maven
-FROM maven:3.8.5-openjdk-17 AS build
-
-# Set the working directory
+# Importing JDK and copying required files
+FROM openjdk:19-jdk AS build
 WORKDIR /app
+COPY pom.xml .
+COPY src src
 
-# Copy the source code
-COPY . .
+# Copy Maven wrapper
+COPY mvnw .
+COPY .mvn .mvn
 
-# Build the Spring Boot application (skipping tests)
-RUN mvn clean package -DskipTests
+# Set execution permission for the Maven wrapper
+RUN chmod +x ./mvnw
+RUN ./mvnw clean package -DskipTests
 
-# Stage 2: Create a minimal runtime image
-FROM openjdk:17-jdk-slim
+# Stage 2: Create the final Docker image using OpenJDK 19
+FROM openjdk:19-jdk
+VOLUME /tmp
 
-# Set the working directory
-WORKDIR /app
-
-# Copy the built JAR file from the first stage
-COPY --from=build /app/target/blog-application-0.0.1-SNAPSHOT.jar blog-application.jar
-
-# Expose port 8080 for the Spring Boot app
+# Copy the JAR from the build stage
+COPY --from=build /app/target/*.jar app.jar
+ENTRYPOINT ["java","-jar","/blog-application.jar"]
 EXPOSE 8080
-
-# Run the application
-ENTRYPOINT ["java", "-jar", "blog-application.jar"]
