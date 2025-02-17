@@ -73,9 +73,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     //for dropdown menu
     // Get unique authors
-    @Query("SELECT DISTINCT " +
-            "p.author FROM Post p")
+    @Query("SELECT DISTINCT p.authorDetails.name FROM Post p")
     List<String> findDistinctAuthors();
+
 
     // Get unique published dates
     @Query("SELECT DISTINCT " +

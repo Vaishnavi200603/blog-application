@@ -24,6 +24,10 @@ public class Comment {
     private String comment;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = true)  // Nullable for non-logged-in users
+    private User user;
+
+    @ManyToOne
     @JoinColumn(name = "post_id", nullable = false) //have a FK of post_id in comment table named post_id
     private Post post;
 
@@ -125,4 +129,6 @@ public class Comment {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+
 }

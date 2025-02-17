@@ -1,8 +1,6 @@
 package com.mountblue.blog_application.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -25,6 +23,10 @@ public class Post {
 
     @Column(nullable = false, length = 100)
     private String author;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
+    private User authorDetails;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
@@ -52,51 +54,34 @@ public class Post {
     @Transient
     private String tagNames;
 
+    // 🔹 Automatically set timestamps
     @PrePersist
-    public void setDefaultAuthorName(){
-        if(this.author == null || this.author.isBlank()){
-            this.author = "Namritha Thapar";
-        }
+    public void onCreatedAt() {
+//        if (this.authorName == null && this.author != null) {
+//            this.authorName = this.author.getName();  // Auto-fill name during post creation
+//        }
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
     }
 
     @PreUpdate
-    public void onUpdatedAt(){
+    public void onUpdatedAt() {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
+    // ✅ Getters & Setters
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public String getExcerpt() { return excerpt; }
+    public void setExcerpt(String excerpt) { this.excerpt = excerpt; }
 
-    public String getExcerpt() {
-        return excerpt;
-    }
-
-    public void setExcerpt(String excerpt) {
-        this.excerpt = excerpt;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
 
     public String getAuthor() {
         return author;
@@ -106,61 +91,32 @@ public class Post {
         this.author = author;
     }
 
-    public List<Comment> getComments() {
-        return comments;
+    public User getAuthorDetails() {
+        return authorDetails;
     }
 
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
+    public void setAuthorDetails(User authorDetails) {
+        this.authorDetails = authorDetails;
     }
 
-    public LocalDateTime getPublishedAt() {
-        return publishedAt;
-    }
+    public List<Comment> getComments() { return comments; }
+    public void setComments(List<Comment> comments) { this.comments = comments; }
 
-    public void setPublishedAt(LocalDateTime publishedAt) {
-        this.publishedAt = publishedAt;
-    }
+    public LocalDateTime getPublishedAt() { return publishedAt; }
+    public void setPublishedAt(LocalDateTime publishedAt) { this.publishedAt = publishedAt; }
 
-    public Boolean getPublished() {
-        return isPublished;
-    }
+    public Boolean getPublished() { return isPublished; }
+    public void setPublished(Boolean published) { isPublished = published; }
 
-    public void setPublished(Boolean published) {
-        isPublished = published;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    public Set<Tag> getTags() { return tags; }
+    public void setTags(Set<Tag> tags) { this.tags = tags; }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Set<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
-    }
-
-    public String getTagNames() {
-//
-        return tagNames;
-    }
-
-    public void setTagNames(String tagNames) {
-        this.tagNames = tagNames;
-    }
-
+    public String getTagNames() { return tagNames; }
+    public void setTagNames(String tagNames) { this.tagNames = tagNames; }
 }

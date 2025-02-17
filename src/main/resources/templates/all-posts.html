@@ -233,7 +233,7 @@
         <div class="post-container">
             <div th:each="post : ${posts}" class="post-card">
                 <h2><a th:href="@{/post/{id}(id=${post.id})}" th:text="${post.title}"></a></h2>
-                <p th:text="${post.author}"></p>
+                <p th:text="${post.authorDetails.name}"></p>
                 <p th:text="${#temporals.format(post.publishedAt, 'dd MMM yyyy HH:mm')}"></p>
                 <p th:text="${post.excerpt}"></p>
                 <div class="tags">
@@ -247,7 +247,7 @@
         <div class="pagination">
             <!-- Previous Page -->
             <a th:if="${currentPage > 0}"
-               th:href="@{/(page=${currentPage - 1}, size=6, sort=${sort},
+               th:href="@{/(page=${currentPage - 1}, size=10, sort=${sort},
                    search=${search}, author=${author},
                    publishedAt=${publishedAt}, tagName=${tagName})}">
                 Previous
@@ -258,7 +258,7 @@
 
             <!-- Next Page -->
             <a th:if="${(currentPage + 1) < totalPages}"
-               th:href="@{/(page=${currentPage + 1}, size=6, sort=${sort},
+               th:href="@{/(page=${currentPage + 1}, size=10, sort=${sort},
                    search=${search}, author=${author},
                    publishedAt=${publishedAt}, tagName=${tagName})}">
                 Next

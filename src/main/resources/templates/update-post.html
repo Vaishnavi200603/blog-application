@@ -57,6 +57,8 @@
             <input type="text" th:field="*{title}" required>
         </div>
 
+        <input type="text" th:value="${post.author}" disabled>
+
         <div class="form-group">
             <label>Tags (comma separated):</label>
 <!--            <input type="text" th:field="*{tagNames}">-->

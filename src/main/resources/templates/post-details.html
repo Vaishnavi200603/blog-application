@@ -151,32 +151,86 @@
 
     <div class="button-container">
         <a href="/" class="button">Back to Home</a>
-        <a th:href="@{/post/edit/{id}(id=${post.id})}" class="button">Update Blog</a>
-        <form th:action="@{/post/delete/{id}(id=${post.id})}" method="post" style="display:inline;">
-            <button type="submit" class="button delete-button">Delete Blog</button>
-        </form>
+
+<!--        <th:block th:if="${#authorization.expression('hasRole(''ADMIN'')')-->
+<!--    or (#authentication != null and #authentication.principal.username == post.authorDetails.email)}">-->
+<!--            <a th:href="@{/post/edit/{id}(id=${post.id})}" class="button">Update Blog</a>-->
+<!--            <form th:action="@{/post/delete/{id}(id=${post.id})}" method="post" style="display:inline;">-->
+<!--                <button type="submit" class="button delete-button">Delete Blog</button>-->
+<!--            </form>-->
+<!--        </th:block>-->
+
+        <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+            <th:block th:if="${#authentication.principal.username == post.authorDetails.email
+        or #authorization.expression('hasRole(''ADMIN'')')}">
+
+                <a th:href="@{/post/edit/{id}(id=${post.id})}" class="button">Update Blog</a>
+                <form th:action="@{/post/delete/{id}(id=${post.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="button delete-button">Delete Blog</button>
+                </form>
+            </th:block>
+        </th:block>
+
+
+
+
+
+<!--        <p>Logged in as: <span th:text="${#authentication.principal.username}"></span></p>-->
+<!--        <p>Post author: <span th:text="${post.author}"></span></p>-->
+
+
     </div>
 
 
     <div class="comment-section">
-        <h2>Comments</h2>
-
-        <!-- Add a New Comment Form -->
         <h3>Add a Comment</h3>
-        <form th:action="@{/comments/add}" method="post" class="comment-form">
-            <input type="hidden" name="postId" th:value="${post.id}">
+        <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+            <!-- Show form for logged-in users (Name & Email auto-filled, Read-Only) -->
+            <form th:action="@{/comments/add}" method="post" class="comment-form">
+                <input type="hidden" name="postId" th:value="${post.id}">
 
-            <label>Name:</label>
-            <input type="text" name="name" required>
+                <label>Name:</label>
+                <input type="text" name="name" required
+                       th:value="${#authentication.principal instanceof T(com.mountblue.blog_application.model.User)
+                 ? #authentication.principal.name
+                 : #authentication.principal.username}"
+                       readonly>
 
-            <label>Email:</label>
-            <input type="email" name="email" required>
+                <label>Email:</label>
+                <input type="email" name="email" required
+                       th:value="${#authentication.principal instanceof T(com.mountblue.blog_application.model.User)
+                 ? #authentication.principal.email
+                 : #authentication.principal.username}"
+                       readonly>
 
-            <label>Comment:</label>
-            <textarea name="comment" required></textarea>
+                <label>Comment:</label>
+                <textarea name="comment" required></textarea>
 
-            <button type="submit">Submit</button>
-        </form>
+                <button type="submit">Submit</button>
+            </form>
+        </th:block>
+
+        <th:block th:if="${not #authorization.expression('isAuthenticated()')}">
+            <!-- Show form for non-logged-in users (Manual Name & Email Entry) -->
+            <form th:action="@{/comments/add}" method="post" class="comment-form">
+                <input type="hidden" name="postId" th:value="${post.id}">
+
+                <label>Name:</label>
+                <input type="text" name="name" required>
+
+                <label>Email:</label>
+                <input type="email" name="email" required>
+
+                <label>Comment:</label>
+                <textarea name="comment" required></textarea>
+
+                <button type="submit">Submit</button>
+            </form>
+        </th:block>
+
+
+
+
 
         <!-- Display Comments (Including Replies) -->
         <div th:each="comment : ${comments}" class="comment-box">
@@ -184,15 +238,21 @@
             <p th:text="${comment.comment}"></p>
 
             <!-- Buttons for Edit, Reply, Delete -->
-            <div class="comment-actions">
-                <form th:action="@{/comments/delete/{id}(id=${comment.id})}" method="post">
-                    <input type="hidden" name="postId" th:value="${post.id}">
-                    <button type="submit">Delete</button>
-                </form>
+            <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+                <th:block th:if="${#authentication.principal.username == post.authorDetails.email}">
+                    <div class="comment-actions">
+                        <form th:action="@{/comments/delete/{id}(id=${comment.id})}" method="post">
+                            <input type="hidden" name="postId" th:value="${post.id}">
+                            <button type="submit">Delete</button>
+                        </form>
 
-                <button type="button" th:attr="onclick='toggleEditForm(' + ${comment.id} + ')'"><b>Edit</b></button>
-                <button type="button" th:attr="onclick='toggleReplyForm(' + ${comment.id} + ')'"><b>Reply</b></button>
-            </div>
+                        <button type="button" th:attr="onclick='toggleEditForm(' + ${comment.id} + ')'"><b>Edit</b></button>
+                        <button type="button" th:attr="onclick='toggleReplyForm(' + ${comment.id} + ')'"><b>Reply</b></button>
+                    </div>
+                </th:block>
+            </th:block>
+
+
 
             <!-- Edit Form (Initially Hidden) -->
             <div th:id="'edit-form-' + ${comment.id}" style="display: none;">
@@ -214,10 +274,22 @@
                     <input type="hidden" name="parentCommentId" th:value="${comment.id}">
 
                     <label>Name:</label>
-                    <input type="text" name="name" required>
+                    <input type="text" name="name" required
+                           th:value="${#authorization.expression('isAuthenticated()')
+                 ? (#authentication.principal instanceof T(com.mountblue.blog_application.model.User)
+                   ? #authentication.principal.name
+                   : #authentication.principal.username)
+                 : ''}"
+                           th:readonly="${#authorization.expression('isAuthenticated()')}">
 
                     <label>Email:</label>
-                    <input type="email" name="email" required>
+                    <input type="email" name="email" required
+                           th:value="${#authorization.expression('isAuthenticated()')
+                 ? (#authentication.principal instanceof T(com.mountblue.blog_application.model.User)
+                   ? #authentication.principal.email
+                   : #authentication.principal.username)
+                 : ''}"
+                           th:readonly="${#authorization.expression('isAuthenticated()')}">
 
                     <label>Reply:</label>
                     <textarea name="comment" required></textarea>
@@ -225,6 +297,7 @@
                     <button type="submit">Reply</button>
                 </form>
             </div>
+
 
             <!-- Nested Comments (Replies) -->
             <div th:if="${not #lists.isEmpty(comment.replies)}" class="nested-comments">
@@ -238,7 +311,7 @@
                         </form>
 
                         <button type="button" th:attr="onclick='toggleEditForm(' + ${reply.id} + ')'"><b>Edit</b></button>
-<!--                        <button type="button" th:attr="onclick='toggleReplyForm(' + ${reply.id} + ')'"><b>Reply</b></button>-->
+                        <button type="button" th:attr="onclick='toggleReplyForm(' + ${reply.id} + ')'"><b>Reply</b></button>
                     </div>
 
                     <!-- Edit Form for Replies -->
@@ -254,24 +327,24 @@
                         </form>
                     </div>
 
-                    <!-- Reply Form for Replies -->
-<!--                    <div th:id="'reply-form-' + ${reply.id}" style="display: none;">-->
-<!--                        <form th:action="@{/comments/add}" method="post">-->
-<!--                            <input type="hidden" name="postId" th:value="${post.id}">-->
-<!--                            <input type="hidden" name="parentCommentId" th:value="${reply.id}">-->
+<!--                     Reply Form for Replies-->
+                    <div th:id="'reply-form-' + ${reply.id}" style="display: none;">
+                        <form th:action="@{/comments/add}" method="post">
+                            <input type="hidden" name="postId" th:value="${post.id}">
+                            <input type="hidden" name="parentCommentId" th:value="${reply.id}">
 
-<!--                            <label>Name:</label>-->
-<!--                            <input type="text" name="name" required>-->
+                            <label>Name:</label>
+                            <input type="text" name="name" required>
 
-<!--                            <label>Email:</label>-->
-<!--                            <input type="email" name="email" required>-->
+                            <label>Email:</label>
+                            <input type="email" name="email" required>
 
-<!--                            <label>Reply:</label>-->
-<!--                            <textarea name="comment" required></textarea>-->
+                            <label>Reply:</label>
+                            <textarea name="comment" required></textarea>
 
-<!--                            <button type="submit">Reply</button>-->
-<!--                        </form>-->
-<!--                    </div>-->
+                            <button type="submit">Reply</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

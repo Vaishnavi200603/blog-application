@@ -1,20 +1,30 @@
 package com.mountblue.blog_application.controller;
 
+import com.mountblue.blog_application.model.RoleName;
 import com.mountblue.blog_application.model.User;
 import com.mountblue.blog_application.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class UserController {
     private final UserService userService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -54,6 +64,10 @@ public class UserController {
             return "redirect:/register?error=Password do not match";
         }
 
+        user.setRoles(Set.of(RoleName.AUTHOR));
+
+        System.out.println("Roles : " + user.getRoles());
+
         userService.save(user);
         //for sessions
         autoLogin(user, request);
@@ -64,8 +78,19 @@ public class UserController {
     private void autoLogin(User user, HttpServletRequest request){
         //1. creates a authentication token for new users
         //don't need to check for password as they are new
+        User freshUser = userService.findByEmail(user.getEmail()).orElseThrow();
+        List<GrantedAuthority> authorities = freshUser.getRoles().stream()
+                .map(roleName -> new SimpleGrantedAuthority("ROLE_" + roleName.name()))// Ensure ROLE_ prefix
+                .collect(Collectors.toList());
+
+        System.out.println("User found: " + user.getEmail() + ", Role: " + user.getRoles()); // Debugging line
+
+//        UsernamePasswordAuthenticationToken authToken =
+//                new UsernamePasswordAuthenticationToken(freshUser.getEmail(), freshUser.getPassword(), authorities);
+
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>());
+                new UsernamePasswordAuthenticationToken(freshUser, freshUser.getPassword(), authorities);
+
 
         //2. Stores the new token into Spring Security context
         // this will helpful as user do logging later
@@ -76,6 +101,15 @@ public class UserController {
         HttpSession session = request.getSession(true);
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
+        System.out.println("Session ID: " + session.getId());
+        System.out.println("Authentication in Context: " + SecurityContextHolder.getContext().getAuthentication());
+
+
+        System.out.println("User Roles After Auto-Login: " + authorities);
+
     }
+
+
+
 
 }

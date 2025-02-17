@@ -1,10 +1,17 @@
 package com.mountblue.blog_application.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
     @SequenceGenerator(name = "user_seq", sequenceName = "user_sequence", allocationSize = 1)
@@ -19,14 +26,20 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    private Set<RoleName> roleNames;
+
     public User() {
     }
 
-    public User(Long id, String name, String email, String password) {
-        this.id = id;
+    public User(String name, String email, String password, Set<RoleName> roleNames) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.roleNames = roleNames;
     }
 
     public Long getId() {
@@ -59,5 +72,49 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Set<RoleName> getRoles() {
+        return roleNames;
+    }
+
+    public void setRoles(Set<RoleName> roleNames) {
+        this.roleNames = roleNames;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roleNames.stream()
+                .map(roleName -> new SimpleGrantedAuthority("ROLE_" + roleName.name()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    public String getDisplayName() {
+        return name;  // Expose the actual name for display
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
