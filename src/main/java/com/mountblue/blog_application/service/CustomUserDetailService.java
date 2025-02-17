@@ -1,5 +1,6 @@
 package com.mountblue.blog_application.service;
 
+import com.mountblue.blog_application.model.RoleName;
 import com.mountblue.blog_application.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,28 +28,18 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userService.findByEmail(email).orElseThrow(
-                () ->new UsernameNotFoundException("User not found with email: " + email)
+                () -> new UsernameNotFoundException("User not found with email: " + email)
         );
 
         System.out.println("USER : " + user);
 
-//        Set<GrantedAuthority> authorities = new HashSet<>();
-//        for (String role : user.getRoles()) {
-//            authorities.add(new SimpleGrantedAuthority(role));
-//        }
-
-        Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                .collect(Collectors.toSet());
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        for (RoleName role : user.getRoles()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        }
 
         System.out.println("ROLES : " + user.getRoles());
         System.out.println("User : " + user);
-
-//        return new org.springframework.security.core.userdetails.User(
-//                user.getEmail(),
-//                user.getPassword(),
-//                authorities
-//        );
 
         return user;
     }

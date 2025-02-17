@@ -67,8 +67,6 @@
     <form th:action="@{/newpost}" th:object="${post}" method="POST">
         <label><input type="text" placeholder="Enter Title" th:field="*{title}" required/></label>
 
-
-
         <label>
             <input type="text" readonly th:value="${#authorization.expression('isAuthenticated()')
         ? (#authentication.principal instanceof T(com.mountblue.blog_application.model.User)
@@ -76,9 +74,6 @@
             : #authentication.principal.username)
         : 'Guest'}" />
         </label>
-
-
-
 
         <label><input type="text" placeholder="Enter Tags" th:field="*{tagNames}" required/></label>
         <label><textarea rows="25" placeholder="Write your content here..." th:field="*{content}" required></textarea></label>

@@ -185,9 +185,9 @@
         <form th:action="@{/}" method="get">
 
             <!-- Preserve Sort and Search -->
-<!--            <input type="hidden" name="search" th:value="${search != null ? search : ''}">-->
-<!--            <input type="hidden" name="sort" th:value="${sort != null ? sort : 'desc'}">-->
-<!--            <input type="hidden" name="page" th:value="${currentPage}">-->
+            <input type="hidden" name="search" th:value="${search != null ? search : ''}">
+            <input type="hidden" name="sort" th:value="${sort != null ? sort : 'desc'}">
+            <input type="hidden" name="page" th:value="${currentPage}">
 
             <!-- Author Filter -->
             <div class="filter-group">
@@ -200,15 +200,10 @@
 <!--                <p th:text="${author}">Selected Authors</p>-->
             </div>
 
-            <!-- Published Date Filter -->
             <div class="filter-group">
-                <h4>Published Dates</h4>
-                <label th:each="date : ${dates}">
-                    <input type="checkbox" name="publishedAt" th:value="${date}"
-                           th:checked="${publishedAt != null and #lists.contains(publishedAt, date)}">
-                    <span th:text="${date}"></span>
-                </label>
-<!--                <p th:text="${publishedAt}">PublishedAt</p>-->
+                <h4>Published Date</h4>
+                <label for="publishedAt">Choose a Date</label>
+                <input type="date" id="publishedAt" name="publishedAt" th:value="${publishedAt}">
             </div>
 
             <!-- Tags Filter -->
@@ -242,7 +237,6 @@
             </div>
         </div>
 
-        <!-- Pagination -->
         <!-- Pagination -->
         <div class="pagination">
             <!-- Previous Page -->

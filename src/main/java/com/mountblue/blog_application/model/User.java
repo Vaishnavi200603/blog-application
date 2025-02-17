@@ -5,7 +5,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,9 +86,11 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roleNames.stream()
-                .map(roleName -> new SimpleGrantedAuthority("ROLE_" + roleName.name()))
-                .collect(Collectors.toList());
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (RoleName roleName : roleNames) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + roleName.name()));
+        }
+        return authorities;
     }
 
     @Override
@@ -96,25 +100,5 @@ public class User implements UserDetails {
 
     public String getDisplayName() {
         return name;  // Expose the actual name for display
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }
