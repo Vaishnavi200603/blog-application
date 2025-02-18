@@ -152,13 +152,6 @@
     <div class="button-container">
         <a href="/" class="button">Back to Home</a>
 
-<!--        <th:block th:if="${#authorization.expression('hasRole(''ADMIN'')')-->
-<!--    or (#authentication != null and #authentication.principal.username == post.authorDetails.email)}">-->
-<!--            <a th:href="@{/post/edit/{id}(id=${post.id})}" class="button">Update Blog</a>-->
-<!--            <form th:action="@{/post/delete/{id}(id=${post.id})}" method="post" style="display:inline;">-->
-<!--                <button type="submit" class="button delete-button">Delete Blog</button>-->
-<!--            </form>-->
-<!--        </th:block>-->
 
         <th:block th:if="${#authorization.expression('isAuthenticated()')}">
             <th:block th:if="${#authentication.principal.username == post.authorDetails.email
@@ -170,14 +163,6 @@
                 </form>
             </th:block>
         </th:block>
-
-
-
-
-
-<!--        <p>Logged in as: <span th:text="${#authentication.principal.username}"></span></p>-->
-<!--        <p>Post author: <span th:text="${post.author}"></span></p>-->
-
 
     </div>
 

@@ -1,5 +1,6 @@
 package com.mountblue.blog_application.service;
 
+import com.mountblue.blog_application.dtos.PostDTO;
 import com.mountblue.blog_application.model.Post;
 import com.mountblue.blog_application.model.RoleName;
 import com.mountblue.blog_application.model.Tag;
@@ -32,45 +33,6 @@ public class PostService {
         this.tagRepository = tagRepository;
         this.userService = userService;
     }
-
-//    @PreAuthorize("hasRole('AUTHOR')") //says that this method can only be accessed by user that has role Author
-//    public void createAndSavePost(Post post) {
-//        String excerpt = generateExcerpt(post.getContent());
-//        post.setExcerpt(excerpt);
-//
-////        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-////        User currentUser = (User) auth.getPrincipal(); // This will now work
-//
-//        // Get the authenticated user from SecurityContextHolder
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        org.springframework.security.core.userdetails.User loggedInUser =
-//                (org.springframework.security.core.userdetails.User) auth.getPrincipal();
-//
-//        // Fetch the actual User entity from the database
-//        Optional<User> optionalUser = userService.findByEmail(loggedInUser.getUsername());
-//
-//        if (optionalUser.isEmpty()) {
-//            throw new RuntimeException("User not found!"); // Handle the case where user is not found
-//        }
-//
-//        User currentUser = optionalUser.get(); // Extract the User from Optional
-//
-//        System.out.println("Current User: " + currentUser.getUsername());
-//
-//        post.setAuthor(currentUser.getUsername()); // ✅ Store the actual username, not Optional
-//
-//
-////        post.setAuthor("Namritha Thapar");
-//        post.setPublishedAt(LocalDateTime.now());
-//        post.setPublished(true);
-//        post.setTagNames(post.getTagNames());
-//        System.out.println("While Setting first : " + post.getTagNames());
-//
-//        Set<Tag> tagSet = processTags(post.getTagNames());
-//        post.setTags(tagSet);
-//
-//        postRepository.save(post);
-//    }
 
     @PreAuthorize("hasRole('AUTHOR')")
     public void createAndSavePost(Post post) {
@@ -116,7 +78,7 @@ public class PostService {
     }
 
 
-    private String generateExcerpt(String content) {
+    public String generateExcerpt(String content) {
         if (content == null || content.trim().isEmpty()) {
             return "";
         }
@@ -128,7 +90,7 @@ public class PostService {
         }
     }
 
-    private Set<Tag> processTags(String tagNames) {
+    public Set<Tag> processTags(String tagNames) {
         Set<Tag> tagSet = new HashSet<>();
         if (tagNames != null && !tagNames.trim().isEmpty()) {
             String[] tagArray = tagNames.split(",");
@@ -183,14 +145,6 @@ public class PostService {
         }
         Post existingPost = postOptional.get();
 
-//        // 3. Ensure the logged-in user is the actual author of this post
-//        if (!existingPost.getAuthorDetails().getEmail().equals(currentUser.getEmail()) &&
-//                !currentUser.getRoles().contains(RoleName.ADMIN)) {
-//            throw new SecurityException("You are not allowed to update this post.");
-//        }
-
-
-        // 4. Update allowed fields
         existingPost.setTitle(updatedPost.getTitle());
         existingPost.setPublishedAt(LocalDateTime.now());
 
@@ -333,8 +287,29 @@ public class PostService {
         return tagNames;
     }
 
-
-
+//    public List<PostDTO> getAllPosts() {
+//        List<Post> posts = postRepository.findAll();  // Fetch all posts
+//        List<PostDTO> postDTOs = new ArrayList<>();
+//
+//        for (Post post : posts) {
+//            List<String> tagNames = new ArrayList<>();
+//            for (Tag tag : post.getTags()) {
+//                tagNames.add(tag.getName());
+//            }
+//
+//            PostDTO postDTO = new PostDTO(
+//                    post.getTitle(),
+//                    post.getContent(),
+//                    post.getAuthor(),
+//                    post.getPublishedAt(),
+//                    tagNames
+//            );
+//
+//            postDTOs.add(postDTO);
+//        }
+//
+//        return postDTOs;
+//    }
 }
 
 
