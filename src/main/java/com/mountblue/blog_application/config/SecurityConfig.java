@@ -1,9 +1,11 @@
 package com.mountblue.blog_application.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,19 +17,21 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig{
     @Bean
     public SecurityFilterChain restApiSecurityFilterChain(HttpSecurity http) throws Exception {
+        System.out.println("SecurityFilterChain for /api/** is being applied");
         return http
-                .securityMatcher("/api/**")  // 🔥 Applies only to API endpoints
-                .csrf(csrf -> csrf.disable()) // REST APIs are stateless, so disable CSRF
+                .securityMatcher("/api/**")  // Ensures this filter applies to API endpoints
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/register", "/api/login").permitAll()
-                        .requestMatchers("/api/create-post").hasAnyAuthority("ROLE_AUTHOR", "ROLE_ADMIN")
+                        .requestMatchers("/api/", "/api/register", "/api/login", "/api/comments/add").permitAll()
+                        .requestMatchers("/api/create-post").hasAnyRole("AUTHOR", "ADMIN")
                         .anyRequest().authenticated()
                 )
-                .httpBasic(withDefaults()) // 🔥 Use Basic Auth for APIs
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No session
+                .httpBasic(withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 

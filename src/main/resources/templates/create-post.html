@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Add New Post</title>
@@ -68,18 +66,12 @@
         <label><input type="text" placeholder="Enter Title" th:field="*{title}" required/></label>
 
         <label>
-            <input type="text" readonly th:value="${#authorization.expression('isAuthenticated()')
-        ? (#authentication.principal instanceof T(com.mountblue.blog_application.model.User)
-            ? #authentication.principal.name
-            : #authentication.principal.username)
-        : 'Guest'}" />
+            <input type="text" readonly th:value="${isAuthenticated ? displayName : 'Guest'}"/>
         </label>
 
         <label><input type="text" placeholder="Enter Tags" th:field="*{tagNames}" required/></label>
         <label><textarea rows="25" placeholder="Write your content here..." th:field="*{content}" required></textarea></label>
         <button type="submit">Publish</button>
     </form>
-
-
 </body>
 </html>

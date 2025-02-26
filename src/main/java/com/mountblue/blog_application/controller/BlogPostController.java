@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -30,19 +29,17 @@ public class BlogPostController {
         this.postService = postService;
     }
 
-    //model
-    // interface in spring mvc
-    // let controllers takes dynamic content to the view layer
-    // acts as container both of them
-
     @GetMapping("/create-post")
     public String showCreatePostForm(Model model){
-        //retrieves the current user authentication details - username, role
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal());
 
-        //check if user is logged in or not
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            return "redirect:/login"; // Redirect unauthenticated users to login
+        model.addAttribute("isAuthenticated", isAuthenticated);
+        if (isAuthenticated && auth.getPrincipal() instanceof User) {
+            User user = (User) auth.getPrincipal();
+            model.addAttribute("displayName", user.getName());
+        } else {
+            model.addAttribute("displayName", "Guest");
         }
 
         //checked if role is author only
@@ -50,41 +47,25 @@ public class BlogPostController {
         for (GrantedAuthority authority : auth.getAuthorities()) {
             if (authority.getAuthority().equals("ROLE_AUTHOR") || authority.getAuthority().equals("ROLE_ADMIN")) {
                 isAuthor = true;
-                break; // Stop looping once found
+                break;
             }
         }
 
-        System.out.println("User Authorities: " + auth.getAuthorities());
-
-        //if not redirect to home page
         if (!isAuthor) {
-            return "redirect:/"; // Redirect non-author users to home
+            return "redirect:/";
         }
         model.addAttribute("post", new Post());
         return "create-post";
     }
 
-    // model attribute
-    // when used as parameter - bind request parameter of form data to the java object properties
-    // used in controller for capture and convert incoming data into model attribute
-
     @PostMapping("/newpost")
     public String createNewPost(@ModelAttribute Post post) {
-        // Retrieve authenticated user from SecurityContext
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            Object principal = auth.getPrincipal();
 
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-
-            // Check if the principal is an instance of your custom User class
-            if (principal instanceof com.mountblue.blog_application.model.User) {
-                User user = (User) principal;
-                post.setAuthor(user.getName());  // Set the author's name instead of email
-            } else if (principal instanceof org.springframework.security.core.userdetails.User) {
-                // If it's Spring Security's default user, set email as fallback
-                org.springframework.security.core.userdetails.User securityUser =
-                        (org.springframework.security.core.userdetails.User) principal;
-                post.setAuthor(securityUser.getUsername()); // This is usually email
+            if (auth.isAuthenticated() && auth.getPrincipal() instanceof User user) {
+                post.setAuthor(user.getName());
             }
         }
 
@@ -92,8 +73,6 @@ public class BlogPostController {
         return "redirect:/";
     }
 
-    //page = in which page
-    //size = how many data per page
     @GetMapping("/")
     public String getAllPosts(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size,
@@ -107,21 +86,15 @@ public class BlogPostController {
         Page<Post> postPage;
         List<LocalDate> publishedDates = null;
 
-        System.out.println("SORT : " + sort);
-
-        //sorting by asc and desc
         Sort.Direction sortingDirection = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
 
-        //1. check any filter is applied or not - take boolean
         boolean isFilterApply = ((author != null && !author.isEmpty()) ||
                 (publishedAt != null && !publishedAt.isEmpty()) ||
                 (tagName != null && !tagName.isEmpty()) ||
                 (search != null && !search.isEmpty()));
 
-        //2. if yes
         if (isFilterApply) {
             publishedDates = new ArrayList<>();
-
             if (publishedAt != null && !publishedAt.isEmpty()) {
                 for (String date : publishedAt) {
                     date = date.replaceAll("[\\[\\]]", "");  // Remove all square brackets
@@ -133,39 +106,32 @@ public class BlogPostController {
             if (author != null && !author.isEmpty()) {
                 List<String> processedAuthors = new ArrayList<>();
 
-                for (String a : author) {
-                    a = a.trim();  // Remove extra spaces
-                    a = a.replaceAll("[\\[\\]]", "");  // Remove square brackets if present
-                    processedAuthors.add(a);
+                for (String authorName : author) {
+                    authorName = authorName.trim();  // Remove extra spaces
+                    authorName = authorName.replaceAll("[\\[\\]]", "");  // Remove square brackets if present
+                    processedAuthors.add(authorName);
                 }
-
-
                 author = processedAuthors; // Assign the processed list back to `author`
                 System.out.println("Processed Authors: " + author);
             }
-
-
             System.out.println("Published At : " + publishedDates);
             System.out.println("Author : " + author);
 
             postPage = postService.getFilteredPost(author, publishedDates, tagName, search,
                     PageRequest.of(page, size, Sort.by(sortingDirection, "publishedAt")));
-        }
-
-        else{ //3. if no - filter is not applied
+        } else{
             postPage = postService.getAllPage(PageRequest.of(page, size, Sort.by(sortingDirection, "publishedAt")));
         }
 
-        //4. to get data for dropdown menu
-        List<String> authors = postService.getAllAuthors();  // Fetch all authors for dropdown
+        //dropdown
+        List<String> authors = postService.getAllAuthors();
         List<String> allTagNames = postService.getAllTagNames();
-        List<LocalDate> dates = postService.getAllPublishedDates();// Fetch all unique published dates
+        List<LocalDate> dates = postService.getAllPublishedDates();
 
         System.out.println("SORT : " + sort);
         System.out.println("TAG-NAME : " + tagName);
         System.out.println("PUBLISHED AT : " + publishedAt);
 
-//        System.out.println(allTagNames);
         // Add attributes to the model
         model.addAttribute("posts", postPage.getContent());
         model.addAttribute("currentPage", page);
@@ -182,9 +148,6 @@ public class BlogPostController {
         model.addAttribute("tagNames", allTagNames);
         model.addAttribute("dates", dates);
 
-
         return "all-posts";
     }
-//    http://localhost:8080/posts?page=1&size=5 -- pagination
-//    http://localhost:8080/ -- start
 }

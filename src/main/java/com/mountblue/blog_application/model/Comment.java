@@ -24,15 +24,11 @@ public class Comment {
     private String comment;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = true)  // Nullable for non-logged-in users
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false) //have a FK of post_id in comment table named post_id
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @ManyToOne
-    @JoinColumn(name = "parent_comment_id") //Fk of id only (Self-join)
+    @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
     //mappedBy = "parentComment" tells Hibernate that the

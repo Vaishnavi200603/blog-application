@@ -6,7 +6,6 @@ import com.mountblue.blog_application.model.User;
 import com.mountblue.blog_application.service.CommentService;
 import com.mountblue.blog_application.service.PostService;
 import com.mountblue.blog_application.service.UserService;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,6 @@ public class PostDetailController {
 
     @GetMapping("/{id}")
     public String getDetailOfPost(@PathVariable Long id, Model model, Principal principal){
-        System.out.println("2. inside getDetailsOfPost");
         Optional<Post> post = postService.getPostById(id);
         if(post.isPresent()){
             System.out.println("✅ Post found: " + post.get().getTitle() + " | Author: " + post.get().getAuthor());

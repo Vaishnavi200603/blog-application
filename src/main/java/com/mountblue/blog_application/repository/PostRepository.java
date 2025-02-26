@@ -8,17 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByIsPublishedTrueOrderByPublishedAtDesc();
-//    List<Post> findByAuthor(String author);
-//    List<Post> findByPublishedAt(LocalDateTime publishedAt);
-
 
     //1. for searching
     @Query("SELECT p FROM Post p LEFT JOIN p.tags t " +
@@ -36,7 +31,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByAuthorInIgnoreCase(List<String> authors, Pageable pageable);
 
     //4. if only author and publishedDate were given
-//    Page<Post> findByAuthorInIgnoreCaseAndPublishedAtIn(List<String> authors, List<LocalDateTime> publishedDates, Pageable pageable);
     @Query("SELECT p FROM Post p " +
             "WHERE p.author IN :authors " +
             "AND DATE(p.publishedAt) IN :publishedDates")
@@ -51,7 +45,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByAuthorInIgnoreCaseAndTags_NameIn(List<String> author, List<String> tagNames, Pageable pageable);
 
     //7. if only dates and tags were given
-//    Page<Post> findByPublishedAtInAndTags_NameIn(List<LocalDateTime> publishedDates, List<String> tagNames, Pageable pageable);
     @Query("SELECT p FROM Post p JOIN p.tags t " +
             "WHERE DATE(p.publishedAt) IN :publishedDates " +
             "AND t.name IN :tagNames")
@@ -60,7 +53,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                                  Pageable pageable);
 
     //8. if all were given
-//    Page<Post> findByAuthorInIgnoreCaseAndPublishedAtInAndTags_NameIn(List<String> author, List<LocalDateTime> publishedDates, List<String> tagNames, Pageable pageable);
     @Query("SELECT p FROM Post p JOIN p.tags t " +
             "WHERE p.author IN :authors " +
             "AND DATE(p.publishedAt) IN :publishedDates " +
@@ -69,7 +61,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                                                       @Param("publishedDates") List<LocalDateTime> publishedDates,
                                                                       @Param("tagNames") List<String> tagNames,
                                                                       Pageable pageable);
-
 
     //for dropdown menu
     // Get unique authors
@@ -82,6 +73,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "DATE(p.publishedAt) " +
             "FROM Post p")
     List<java.sql.Date> findDistinctPublishedDates();
-
 
 }

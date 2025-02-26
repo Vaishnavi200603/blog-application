@@ -10,17 +10,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -119,7 +114,7 @@ public class BlogPostRestController {
 
     //4. edit the previous post by id
     @PutMapping("/edit/{id}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('AUTHOR') and @postRepository.findById(#id).get().authorDetails.email == authentication.name)")
+    @PreAuthorize("hasRole('ADMIN') or @postSecurityService.isPostOwner(#id, authentication.name)")
     public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody Post updatedPost) {
         try {
             postService.updatePost(id, updatedPost);
@@ -131,7 +126,7 @@ public class BlogPostRestController {
 
     //5. delete post by id
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('AUTHOR') and @postRepository.findById(#id).get().authorDetails.email == authentication.name)")
+    @PreAuthorize("hasRole('ADMIN') or @postSecurityService.isPostOwner(#id, authentication.name)")
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
         try {
             postService.deletePost(id);

@@ -61,13 +61,14 @@ public class CommentService {
         }
     }
 
-    //delete - "/comments/delete/{id}
+    //delete - "/comments/{id}
     @Transactional
     public void deleteComment(Long commentId){
         Optional<Comment> comment = commentRepository.findById(commentId);
+        System.out.println("Deleting comment with ID: " + commentId);
         if(comment.isPresent()){
-            //it will delete all nested comments also, as we are using cascade
             commentRepository.delete(comment.get());
+            System.out.println("Comment deleted successfully.");
         }
     }
 

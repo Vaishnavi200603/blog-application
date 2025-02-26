@@ -54,12 +54,8 @@ public class Post {
     @Transient
     private String tagNames;
 
-    // 🔹 Automatically set timestamps
     @PrePersist
     public void onCreatedAt() {
-//        if (this.authorName == null && this.author != null) {
-//            this.authorName = this.author.getName();  // Auto-fill name during post creation
-//        }
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
     }
@@ -68,8 +64,6 @@ public class Post {
     public void onUpdatedAt() {
         this.updatedAt = LocalDateTime.now();
     }
-
-    // ✅ Getters & Setters
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

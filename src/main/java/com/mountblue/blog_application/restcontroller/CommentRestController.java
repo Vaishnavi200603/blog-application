@@ -2,7 +2,6 @@ package com.mountblue.blog_application.restcontroller;
 
 import com.mountblue.blog_application.dtos.CommentDTO;
 import com.mountblue.blog_application.dtos.UpdateCommentDTO;
-import com.mountblue.blog_application.model.Comment;
 import com.mountblue.blog_application.service.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,7 @@ public class CommentRestController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
+    @PreAuthorize("hasRole('ADMIN') or @postSecurityService.isCommentOnOwnPost(#id, authentication.name)")
     public ResponseEntity<String> updateComment(
             @PathVariable Long id,
             @RequestBody UpdateCommentDTO request) {
@@ -45,8 +44,8 @@ public class CommentRestController {
         return ResponseEntity.ok("Comment updated successfully!");
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @postSecurityService.isCommentOnOwnPost(#id, authentication.name)")
     public ResponseEntity<String> deleteComment(@PathVariable("id") Long id) {
         commentService.deleteComment(id);
         return ResponseEntity.ok("Comment deleted successfully!");

@@ -66,8 +66,6 @@ public class UserController {
         for (RoleName roleName : freshUser.getRoles()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + roleName.name()));
         }
-//        System.out.println("User found: " + user.getEmail() + ", Role: " + user.getRoles());
-
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(freshUser, freshUser.getPassword(), authorities);
 
