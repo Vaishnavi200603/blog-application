@@ -1,22 +1,15 @@
 package com.mountblue.blog_application.controller;
 
-import com.mountblue.blog_application.model.Comment;
-import com.mountblue.blog_application.model.Post;
 import com.mountblue.blog_application.service.CommentService;
-import com.mountblue.blog_application.service.PostService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/comments")
 public class CommentController {
-    private final PostService postService;
     private final CommentService commentService;
 
-    public CommentController(PostService postService, CommentService commentService) {
-        this.postService = postService;
+    public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
 
@@ -38,7 +31,6 @@ public class CommentController {
     public String updateComment(@PathVariable("id") Long id,
                                 @RequestParam("postId") Long postId,
                                 @RequestParam("updatedComment") String updatedComment){
-        System.out.println("UPDATED Comment : " + updatedComment);
         commentService.updateComment(id, updatedComment);
         return "redirect:/post/" + postId;
     }
@@ -49,6 +41,4 @@ public class CommentController {
         commentService.deleteComment(id);
         return "redirect:/post/" + postId;
     }
-
-
 }

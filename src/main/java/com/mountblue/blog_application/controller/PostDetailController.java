@@ -31,20 +31,17 @@ public class PostDetailController {
     public String getDetailOfPost(@PathVariable Long id, Model model, Principal principal){
         Optional<Post> post = postService.getPostById(id);
         if(post.isPresent()){
-            System.out.println("✅ Post found: " + post.get().getTitle() + " | Author: " + post.get().getAuthor());
-
             List<Comment> comments = commentService.getCommentsByPost(id);
-
             Comment newComment = new Comment();
-            if (principal != null) { // If user is logged in
+            if (principal != null) {
                 User loggedInUser = userService.getUserByEmail(principal.getName());
                 newComment.setName(loggedInUser.getName());
                 newComment.setEmail(loggedInUser.getEmail());
             }
 
             model.addAttribute("post", post.get());
-            model.addAttribute("comments", comments); //for existing comments
-            model.addAttribute("newComment", new Comment());  //for adding new comments
+            model.addAttribute("comments", comments);
+            model.addAttribute("newComment", new Comment());
             return "post-details";
         }
         else{
@@ -64,7 +61,6 @@ public class PostDetailController {
         }
     }
 
-
     @PostMapping("/update/{id}")
     public String showUpdatedPost(@PathVariable Long id, @ModelAttribute Post updatedPost){
         postService.updatePost(id, updatedPost);
@@ -76,6 +72,4 @@ public class PostDetailController {
         postService.deletePost(id);
         return "redirect:/";
     }
-
-
 }

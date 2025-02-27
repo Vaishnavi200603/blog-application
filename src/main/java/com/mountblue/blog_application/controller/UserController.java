@@ -5,7 +5,6 @@ import com.mountblue.blog_application.model.User;
 import com.mountblue.blog_application.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,17 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Controller
 public class UserController {
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
 
-
-    public UserController(UserService userService, AuthenticationManager authenticationManager) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
     }
 
     @GetMapping("/login")
@@ -73,16 +68,5 @@ public class UserController {
 
         HttpSession session = request.getSession(true);
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-
-        System.out.println("Session ID: " + session.getId());
-        System.out.println("Authentication in Context: " + SecurityContextHolder.getContext().getAuthentication());
-
-
-        System.out.println("User Roles After Auto-Login: " + authorities);
-
     }
-
-
-
-
 }

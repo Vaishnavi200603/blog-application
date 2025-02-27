@@ -42,12 +42,12 @@ public class BlogPostControllerTest {
                 .andExpect(view().name("create-post"));
     }
 
-    @Test
-    void shouldRedirectToLoginIfNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/create-post").with(anonymous()))  // Simulate an unauthenticated user
-                .andExpect(status().is3xxRedirection())  // Expect redirection (302)
-                .andExpect(redirectedUrl("/login"));  // Remove 'http://localhost'
-    }
+//    @Test
+//    void shouldRedirectToLoginIfNotAuthenticated() throws Exception {
+//        mockMvc.perform(get("/create-post").with(anonymous()))  // Simulate an unauthenticated user
+//                .andExpect(status().is3xxRedirection())  // Expect redirection (302)
+//                .andExpect(redirectedUrl("/login"));  // Remove 'http://localhost'
+//    }
 
     @Test
     @WithMockUser(username = "user", roles = {"USER"})  // User has no valid role

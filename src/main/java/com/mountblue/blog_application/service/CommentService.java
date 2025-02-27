@@ -13,12 +13,10 @@ import java.util.Optional;
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final PostService postService;
     private final PostRepository postRepository;
 
-    public CommentService(CommentRepository commentRepository, PostService postService, PostRepository postRepository) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository) {
         this.commentRepository = commentRepository;
-        this.postService = postService;
         this.postRepository = postRepository;
     }
 
@@ -52,7 +50,6 @@ public class CommentService {
     //update - "/comments/update/{id}
     @Transactional
     public void updateComment(Long commentId, String updatedComment){
-        System.out.println("Inside Updated Comment");
         Optional<Comment> existingComment = commentRepository.findById(commentId);
         if(existingComment.isPresent()){
             Comment comment = existingComment.get();
@@ -71,6 +68,4 @@ public class CommentService {
             System.out.println("Comment deleted successfully.");
         }
     }
-
-
 }

@@ -152,7 +152,6 @@
     <div class="button-container">
         <a href="/" class="button">Back to Home</a>
 
-
         <th:block th:if="${#authorization.expression('isAuthenticated()')}">
             <th:block th:if="${#authentication.principal.username == post.authorDetails.email
         or #authorization.expression('hasRole(''ADMIN'')')}">
@@ -163,9 +162,7 @@
                 </form>
             </th:block>
         </th:block>
-
     </div>
-
 
     <div class="comment-section">
         <h3>Add a Comment</h3>
@@ -213,10 +210,6 @@
             </form>
         </th:block>
 
-
-
-
-
         <!-- Display Comments (Including Replies) -->
         <div th:each="comment : ${comments}" class="comment-box">
             <strong th:text="${comment.name}"></strong>
@@ -236,7 +229,6 @@
                     </div>
                 </th:block>
             </th:block>
-
 
 
             <!-- Edit Form (Initially Hidden) -->
@@ -312,7 +304,7 @@
                         </form>
                     </div>
 
-<!--                     Reply Form for Replies-->
+                    <!--Reply Form for Replies-->
                     <div th:id="'reply-form-' + ${reply.id}" style="display: none;">
                         <form th:action="@{/comments/add}" method="post">
                             <input type="hidden" name="postId" th:value="${post.id}">
@@ -346,13 +338,6 @@
             form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
         }
     </script>
-
-
-
-
-
-
-
 </div>
 </body>
 </html>

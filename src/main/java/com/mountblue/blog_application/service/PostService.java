@@ -93,17 +93,13 @@ public class PostService {
 
     @PreAuthorize("hasRole('ADMIN') or (hasRole('AUTHOR') and @postRepository.findById(#id).get().authorDetails.email == authentication.name)")
     public void updatePost(Long id, Post updatedPost) {
-        // 1. Get the currently authenticated user
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = auth.getPrincipal(); // Get the principal
+        Object principal = auth.getPrincipal();
 
         User currentUser;
-
         if (principal instanceof User) {
-            // Case 1: If it's an instance of our custom User entity
             currentUser = (User) principal;
         } else if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
-            // Case 2: If it's Spring Security's User, fetch from the database
             Optional<User> optionalUser = userService.findByEmail(springUser.getUsername());
             if (optionalUser.isEmpty()) {
                 throw new RuntimeException("User not found!");
@@ -113,7 +109,7 @@ public class PostService {
             throw new RuntimeException("Authentication error: Invalid user type.");
         }
 
-        // 2. Fetch the existing post
+        //Fetch the existing post
         Optional<Post> postOptional = postRepository.findById(id);
         if (postOptional.isEmpty()) {
             throw new RuntimeException("Post not found!");
@@ -123,22 +119,16 @@ public class PostService {
         existingPost.setTitle(updatedPost.getTitle());
         existingPost.setPublishedAt(LocalDateTime.now());
 
-        // 5. Update tags
         Set<Tag> tagsSet = processTags(updatedPost.getTagNames());
         existingPost.setTags(tagsSet);
 
-        // 6. Update content and generate excerpt
         existingPost.setContent(updatedPost.getContent());
         String excerpt = generateExcerpt(updatedPost.getContent());
         existingPost.setExcerpt(excerpt);
 
-        // 7. Save the updated post
         postRepository.save(existingPost);
     }
 
-    //before going deleting and updating post that has role author, it must first check currecntly logged user is equal to post author
-    //author can only delete or update his own post
-//    @PreAuthorize("hasRole('ADMIN') or (hasRole('AUTHOR') and #post.authorDetails.email == authentication.name)")
     public void deletePost(Long id) {
         postRepository.deleteById(id);
     }
@@ -149,9 +139,7 @@ public class PostService {
 
         if (post.isPresent()) {
             Set<Tag> tags = post.get().getTags();
-
             StringBuilder tagNames = new StringBuilder();
-
             for (Tag tag : tags) {
                 if (!tagNames.isEmpty()) {
                     tagNames.append(", ");

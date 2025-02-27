@@ -49,11 +49,8 @@
     <h2>New/Edit Post</h2>
 
     <form th:action="@{/post/update/{id}(id=${post.id})}" th:object="${post}" method="post">
-
         <div class="form-group">
             <label>Title:</label>
-<!--            <p th:text="*{tagNames}">TagName</p>-->
-<!--            <p th:text="*{title}">TagName</p>-->
             <input type="text" th:field="*{title}" required>
         </div>
 
@@ -61,7 +58,6 @@
 
         <div class="form-group">
             <label>Tags (comma separated):</label>
-<!--            <input type="text" th:field="*{tagNames}">-->
             <input type="text" th:field="*{tagNames}">
         </div>
 
@@ -74,7 +70,6 @@
             <button type="submit" class="button">Save Changes</button>
             <a href="/" class="button">Cancel</a>
         </div>
-
     </form>
 </div>
 </body>

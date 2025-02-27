@@ -1,8 +1,12 @@
 package com.mountblue.blog_application.service;
 
+import com.mountblue.blog_application.model.Comment;
+import com.mountblue.blog_application.model.Post;
 import com.mountblue.blog_application.repository.CommentRepository;
 import com.mountblue.blog_application.repository.PostRepository;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class PostSecurityService {
@@ -16,14 +20,21 @@ public class PostSecurityService {
     }
 
     public boolean isPostOwner(Long postId, String email) {
-        return postRepository.findById(postId)
-                .map(post -> post.getAuthorDetails().getEmail().equals(email))
-                .orElse(false); // Return false if post is not found
+        Optional<Post> postOptional = postRepository.findById(postId);
+        if (postOptional.isPresent()) {
+            Post post = postOptional.get();
+            return post.getAuthorDetails().getEmail().equals(email);
+        }
+        return false;
     }
 
     public boolean isCommentOnOwnPost(Long commentId, String email) {
-        return commentRepository.findById(commentId)
-                .map(comment -> comment.getPost().getAuthorDetails().getEmail().equals(email))
-                .orElse(false);
+        Optional<Comment> commentOptional = commentRepository.findById(commentId);
+        if (commentOptional.isPresent()) {
+            Comment comment = commentOptional.get();
+            return comment.getPost().getAuthorDetails().getEmail().equals(email);
+        }
+        return false;
     }
+
 }

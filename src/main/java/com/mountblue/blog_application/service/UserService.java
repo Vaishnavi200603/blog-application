@@ -42,7 +42,6 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         Optional<User> userOptional = userRepository.findByEmail(email);
-        System.out.println("userOptional : " + userOptional);
         return userOptional.orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 }
